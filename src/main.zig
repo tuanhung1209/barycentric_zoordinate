@@ -4,9 +4,10 @@ const helper = @import("helper.zig");
 
 const Renderer = @import("renderer.zig").Renderer;
 const Triangle = @import("triangle.zig").Triangle;
+const Vertex = @import("triangle.zig").Vertex;
 
-const Vec2 = @import("vec2.zig").Vec2;
-const vec2 = @import("vec2.zig");
+const Vec2 = @import("math.zig").Vec2;
+const math = @import("math.zig");
 
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
@@ -23,8 +24,8 @@ pub fn main(init: std.process.Init) !void {
     const window: *sdl.SDL_Window = sdl.SDL_CreateWindow(
         "barycentric zoordinates",
         800,
-        600,
-        sdl.SDL_WINDOW_RESIZABLE,
+        800,
+        0,
     ) orelse {
         std.debug.print("SDL_CreateWindow failed: {s}\n", .{sdl.SDL_GetError()});
         return error.SdlCreateWindowFailed;
@@ -36,9 +37,18 @@ pub fn main(init: std.process.Init) !void {
     var triangle: Triangle = undefined;
     triangle.init(allocator);
     defer triangle.deinit();
-    try triangle.addPoint(vec2.init(400, 200));
-    try triangle.addPoint(vec2.init(600, 600));
-    try triangle.addPoint(vec2.init(200, 600));
+    try triangle.addVertex(.{
+        .position = math.vec2Init(400, 200),
+        .color = math.color3Init(255, 0, 0),
+    });
+    try triangle.addVertex(.{
+        .position = math.vec2Init(600, 600),
+        .color = math.color3Init(0, 255, 0),
+    });
+    try triangle.addVertex(.{
+        .position = math.vec2Init(200, 600),
+        .color = math.color3Init(0, 0, 255),
+    });
 
     var renderer: Renderer = undefined;
     try renderer.init(window);
@@ -49,7 +59,7 @@ pub fn main(init: std.process.Init) !void {
         while (sdl.SDL_PollEvent(&event)) {
             if (event.type == sdl.SDL_EVENT_QUIT) quit = true;
         }
-        try renderer.render(triangle.points.items);
+        try renderer.render(triangle.vertices.items);
     }
 
     std.debug.print("clean exit\n", .{});

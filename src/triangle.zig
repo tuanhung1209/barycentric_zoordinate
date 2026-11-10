@@ -1,24 +1,31 @@
 const std = @import("std");
 
-const Vec2 = @import("vec2.zig").Vec2;
+const Vec2 = @import("math.zig").Vec2;
+const Color3 = @import("math.zig").Color3;
+
+// tempoary
+pub const Vertex = struct {
+    position: Vec2 = undefined,
+    color: Color3 = undefined,
+};
 
 pub const Triangle = struct {
     const Self = @This();
 
     allocator: std.mem.Allocator = undefined,
 
-    points: std.ArrayList(Vec2) = undefined,
+    vertices: std.ArrayList(Vertex) = undefined,
 
     pub fn init(self: *Self, allocator: std.mem.Allocator) void {
         self.allocator = allocator;
-        self.points = .empty;
+        self.vertices = .empty;
     }
 
     pub fn deinit(self: *Self) void {
-        self.points.deinit(self.allocator);
+        self.vertices.deinit(self.allocator);
     }
 
-    pub fn addPoint(self: *Self, point: Vec2) !void {
-        try self.points.append(self.allocator, point);
+    pub fn addVertex(self: *Self, vertex: Vertex) !void {
+        try self.vertices.append(self.allocator, vertex);
     }
 };
