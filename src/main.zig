@@ -59,7 +59,7 @@ pub fn main(init: std.process.Init) !void {
         while (sdl.SDL_PollEvent(&event)) {
             if (event.type == sdl.SDL_EVENT_QUIT) quit = true;
         }
-        try renderer.render(triangle.vertices.items);
+        try renderer.render(&triangle);
     }
 
     std.debug.print("clean exit\n", .{});

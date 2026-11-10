@@ -4,6 +4,7 @@ const sdl = @import("sdl");
 const Vec2 = @import("math.zig").Vec2;
 const Color3 = @import("math.zig").Color3;
 const Vertex = @import("triangle.zig").Vertex;
+const Triangle = @import("triangle.zig").Triangle;
 
 pub const Renderer = struct {
     const Self = @This();
@@ -24,20 +25,17 @@ pub const Renderer = struct {
         sdl.SDL_DestroyRenderer(self.renderer);
     }
 
-    // find something to pass in
-    pub fn render(self: *Self, vertices: []const Vertex) !void {
-        // 1. clear the framebuffer first (fills with current draw color)
+    pub fn render(self: *Self, triangle: *Triangle) !void {
         if (!sdl.SDL_SetRenderDrawColor(self.renderer, 12, 12, 24, 255)) {
             std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
             return error.SdlRenderFailed;
         }
         try self.clear();
 
-        // 2. switch to the point color and draw
-        try self.renderLine(vertices);
-        try self.renderPoints(vertices);
+        try self.renderLine(triangle.vertices.items);
+        try self.renderPoints(triangle.vertices.items);
+        try self.renderCheck(triangle);
 
-        // 3. only then show it on screen
         _ = sdl.SDL_RenderPresent(self.renderer);
     }
 
@@ -46,6 +44,18 @@ pub const Renderer = struct {
     // pass the data in to render() make more sense ?
     // i need to somehow architec sdl
     //pub fn renderTriangle(){}
+    fn renderCheck(self: *Self, triangle: *Triangle) !void {
+        _ = self;
+        var x: f32 = 0;
+        var y: f32 = 0;
+
+        const mouse: sdl.SDL_MouseButtonFlags = sdl.SDL_GetMouseState(&x, &y);
+        _ = mouse;
+
+        if (triangle.checkPoint(.{ x, y })) {
+            std.debug.print("inside the triangle\n", .{});
+        }
+    }
 
     // helper function
     fn clear(self: *Self) !void {
@@ -56,8 +66,8 @@ pub const Renderer = struct {
     }
 
     fn renderLine(self: *Self, verticies: []const Vertex) !void {
-        std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
         if (!sdl.SDL_SetRenderDrawColor(self.renderer, 255, 255, 255, 255)) {
+            std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
             return error.SdlRenderFailed;
         }
 
@@ -91,8 +101,9 @@ pub const Renderer = struct {
                 return error.SdlRenderFailed;
             }
 
-            var buffer: [2]u8 = undefined;
-            const vertex_name: []const u8 = try std.fmt.bufPrint(&buffer, "v{d}", .{i});
+            var buffer: [16]u8 = undefined;
+            const vertex_name: []const u8 = try std.mem.printSentinel(&buffer, "v{d}", .{i}, 0);
+
             i = i + 1;
             // how can i offset this to make sense.ptr
             if (!sdl.SDL_RenderDebugText(self.renderer, vertex.position[0] - 30, vertex.position[1] - 30, vertex_name.ptr)) {
