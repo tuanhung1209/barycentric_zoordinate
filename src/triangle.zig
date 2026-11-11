@@ -26,8 +26,12 @@ pub const Triangle = struct {
         self.vertices.deinit(self.allocator);
     }
 
-    pub fn addVertex(self: *Self, vertex: Vertex) !void {
+    pub fn appendVertex(self: *Self, vertex: Vertex) !void {
         try self.vertices.append(self.allocator, vertex);
+    }
+
+    pub fn popVertex(self: *Self) !void {
+        _ = self.vertices.pop();
     }
 
     pub fn checkPoint(self: *Self, point: Vec2) bool {

@@ -5,6 +5,7 @@ const Vec2 = @import("math.zig").Vec2;
 const Color3 = @import("math.zig").Color3;
 const Vertex = @import("triangle.zig").Vertex;
 const Triangle = @import("triangle.zig").Triangle;
+const vec = @import("math.zig");
 
 pub const Renderer = struct {
     const Self = @This();
@@ -33,19 +34,14 @@ pub const Renderer = struct {
         try self.clear();
 
         try self.renderLine(triangle.vertices.items);
-        try self.renderPoints(triangle.vertices.items);
         try self.renderCheck(triangle);
+        try self.renderPoints(triangle.vertices.items);
 
         _ = sdl.SDL_RenderPresent(self.renderer);
     }
 
-    // it a state machine, how can i architec this
-    // seem like eacch function to do a percific thing then pass that function into render() ?
-    // pass the data in to render() make more sense ?
-    // i need to somehow architec sdl
-    //pub fn renderTriangle(){}
+    // helper function
     fn renderCheck(self: *Self, triangle: *Triangle) !void {
-        _ = self;
         var x: f32 = 0;
         var y: f32 = 0;
 
@@ -54,10 +50,21 @@ pub const Renderer = struct {
 
         if (triangle.checkPoint(.{ x, y })) {
             std.debug.print("inside the triangle\n", .{});
+            try self.renderToPoint(triangle, x, y);
         }
     }
 
-    // helper function
+    fn renderToPoint(self: *Self, triangle: *Triangle, mouse_posx: f32, mouse_posy: f32) !void {
+        try triangle.appendVertex(.{
+            .color = @as(Color3, @splat(255)),
+            .position = vec.vec2Init(mouse_posx, mouse_posy),
+        });
+
+        try self.renderLine(triangle.vertices.items);
+
+        try triangle.popVertex();
+    }
+
     fn clear(self: *Self) !void {
         if (!sdl.SDL_RenderClear(self.renderer)) {
             std.debug.print("RenderClear failed: {s}\n", .{sdl.SDL_GetError()});
@@ -105,7 +112,6 @@ pub const Renderer = struct {
             const vertex_name: []const u8 = try std.mem.printSentinel(&buffer, "v{d}", .{i}, 0);
 
             i = i + 1;
-            // how can i offset this to make sense.ptr
             if (!sdl.SDL_RenderDebugText(self.renderer, vertex.position[0] - 30, vertex.position[1] - 30, vertex_name.ptr)) {
                 std.debug.print("render debug text failed: {s}\n", .{sdl.SDL_GetError()});
                 return error.SdlRenderFailed;

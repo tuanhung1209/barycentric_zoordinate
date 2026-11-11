@@ -37,18 +37,22 @@ pub fn main(init: std.process.Init) !void {
     var triangle: Triangle = undefined;
     triangle.init(allocator);
     defer triangle.deinit();
-    try triangle.addVertex(.{
+    try triangle.appendVertex(.{
         .position = math.vec2Init(400, 200),
         .color = math.color3Init(255, 0, 0),
     });
-    try triangle.addVertex(.{
+    try triangle.appendVertex(.{
         .position = math.vec2Init(600, 600),
         .color = math.color3Init(0, 255, 0),
     });
-    try triangle.addVertex(.{
+    try triangle.appendVertex(.{
         .position = math.vec2Init(200, 600),
         .color = math.color3Init(0, 0, 255),
     });
+
+    // TODO : random point init
+    // TODO : baricentric + interpolate weight to color stuff
+    // TODO : a debug message with the 3 weight and their caculation
 
     var renderer: Renderer = undefined;
     try renderer.init(window);

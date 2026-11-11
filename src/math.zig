@@ -1,5 +1,7 @@
 const std = @import("std");
 
+pub const getRandomRange = @import("helper.zig").getRandomInRange;
+
 pub const Vec2 = @Vector(2, f32);
 pub const Vec3 = @Vector(3, f64);
 pub const Color3 = @Vector(3, u8);
@@ -7,6 +9,13 @@ pub const Color3 = @Vector(3, u8);
 // use this function for different number init, use @splat for same num
 pub inline fn vec2Init(x: f32, y: f32) Vec2 {
     return .{ x, y };
+}
+
+pub inline fn rvec2Init(min: f32, max: f32) Vec2 {
+    return .{
+        getRandomRange(f32, min, max),
+        getRandomRange(f32, min, max),
+    };
 }
 
 pub inline fn vec3Init(x: f32, y: f32, z: f32) Vec3 {
