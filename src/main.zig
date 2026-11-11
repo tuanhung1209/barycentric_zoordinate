@@ -38,19 +38,21 @@ pub fn main(init: std.process.Init) !void {
     triangle.init(allocator);
     defer triangle.deinit();
     try triangle.appendVertex(.{
-        .position = math.vec2Init(400, 200),
+        // top half
+        .position = math.rvec2Init(0, 800, 0, 400),
         .color = math.color3Init(255, 0, 0),
     });
     try triangle.appendVertex(.{
-        .position = math.vec2Init(600, 600),
+        // bottom left half
+        .position = math.rvec2Init(400, 800, 400, 800),
         .color = math.color3Init(0, 255, 0),
     });
     try triangle.appendVertex(.{
-        .position = math.vec2Init(200, 600),
+        // bottom right half
+        .position = math.rvec2Init(0, 400, 400, 800),
         .color = math.color3Init(0, 0, 255),
     });
 
-    // TODO : random point init
     // TODO : baricentric + interpolate weight to color stuff
     // TODO : a debug message with the 3 weight and their caculation
 

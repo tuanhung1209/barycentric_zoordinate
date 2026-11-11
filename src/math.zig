@@ -11,10 +11,10 @@ pub inline fn vec2Init(x: f32, y: f32) Vec2 {
     return .{ x, y };
 }
 
-pub inline fn rvec2Init(min: f32, max: f32) Vec2 {
+pub inline fn rvec2Init(xmin: f32, xmax: f32, ymin: f32, ymax: f32) Vec2 {
     return .{
-        getRandomRange(f32, min, max),
-        getRandomRange(f32, min, max),
+        getRandomRange(f32, xmin, xmax),
+        getRandomRange(f32, ymin, ymax),
     };
 }
 
