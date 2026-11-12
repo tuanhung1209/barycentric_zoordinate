@@ -2,10 +2,12 @@ const std = @import("std");
 const sdl = @import("sdl");
 
 const Vec2 = @import("math.zig").Vec2;
+const Vec3 = @import("math.zig").Vec3;
 const Color3 = @import("math.zig").Color3;
 const Vertex = @import("triangle.zig").Vertex;
 const Triangle = @import("triangle.zig").Triangle;
 const vec = @import("math.zig");
+const barycentric = @import("barycentric.zig").barycentric;
 
 pub const Renderer = struct {
     const Self = @This();
@@ -50,6 +52,8 @@ pub const Renderer = struct {
 
         if (triangle.checkPoint(.{ x, y })) {
             std.debug.print("inside the triangle\n", .{});
+            const weights: Vec3 = barycentric(triangle, .{ x, y });
+            std.debug.print("w1 : {d:.2}, w2 : {d:.2}, w3 : {d:.2}\n", .{ weights[0], weights[1], weights[2] });
             try self.renderToPoint(triangle, x, y);
         }
     }

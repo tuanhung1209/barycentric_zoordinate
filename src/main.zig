@@ -53,7 +53,7 @@ pub fn main(init: std.process.Init) !void {
         .color = math.color3Init(0, 0, 255),
     });
 
-    // TODO : baricentric + interpolate weight to color stuff
+    // TODO : Then color/interpolate the triangle
     // TODO : a debug message with the 3 weight and their caculation
 
     var renderer: Renderer = undefined;
