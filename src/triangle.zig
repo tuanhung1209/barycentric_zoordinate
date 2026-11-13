@@ -50,6 +50,15 @@ pub const Triangle = struct {
         _ = self.vertices.pop();
     }
 
+    pub fn centroid(self: *const Self) Vec2 {
+        var tcentroid: Vec2 = .{ 0, 0 };
+        for (self.vertices.items) |vertex| {
+            tcentroid[0] += vertex.position[0];
+            tcentroid[1] += vertex.position[1];
+        }
+        return .{ tcentroid[0] / 3, tcentroid[1] / 3 };
+    }
+
     pub fn checkPoint(self: *const Self, point: Vec2) bool {
         const verticies: []const Vertex = self.vertices.items;
         if (edgeCross(verticies[0].position, verticies[1].position, point) < 0) return false;

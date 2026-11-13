@@ -46,6 +46,11 @@ pub const Renderer = struct {
         }
         try self.clear();
 
+        const white: Color3 = @splat(255);
+        try self.renderDebugText(10, 10, white, "show barycentric: {}", .{show_barycentric});
+
+        try self.renderLine(triangle);
+        try self.renderPoints(triangle);
         if (show_barycentric) {
             try self.bakeTriangleTexture(triangle);
             if (!sdl.SDL_RenderTexture(self.renderer, self.barycentric_tex, null, null)) {
@@ -53,10 +58,7 @@ pub const Renderer = struct {
                 return error.SdlRenderFailed;
             }
         }
-
-        try self.renderLine(triangle.vertices.items);
         try self.renderLineToPoint(triangle);
-        try self.renderPoints(triangle.vertices.items);
 
         _ = sdl.SDL_RenderPresent(self.renderer);
     }
@@ -123,7 +125,7 @@ pub const Renderer = struct {
                     try self.renderBigPoint(
                         fx,
                         fy,
-                        3.0,
+                        4.0,
                     );
                 }
             }
@@ -136,11 +138,22 @@ pub const Renderer = struct {
         const mouse: sdl.SDL_MouseButtonFlags = sdl.SDL_GetMouseState(&x, &y);
         _ = mouse;
 
-        // print out the color weight
-        if (triangle.checkPoint(.{ x, y })) {
-            std.debug.print("this point is inside the triangle\n", .{});
+        const is_inside = triangle.checkPoint(.{ x, y });
+        const white: Color3 = @splat(255);
+        try self.renderDebugText(10, 25, white, "mouse position: ({d:.0}, {d:.0})", .{ x, y });
+        try self.renderDebugText(10, 40, white, "is inside triangle: {}", .{is_inside});
+
+        if (is_inside) {
             const weights: Vec3 = barycentric(triangle, .{ x, y });
-            std.debug.print("w1 :{d:.2}, w2 :{d:.2}, w3 :{d:.2}\n", .{ weights[0], weights[1], weights[2] });
+            const color: Color3 = interpolate(triangle, weights);
+
+            try self.renderDebugText(
+                10,
+                55,
+                color,
+                "w1: {d:.2} ({d}), w2: {d:.2} ({d}), w3: {d:.2} ({d})",
+                .{ weights[0], color[0], weights[1], color[1], weights[2], color[2] },
+            );
 
             if (!sdl.SDL_SetRenderDrawColor(self.renderer, 255, 255, 255, 255)) {
                 std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
@@ -169,14 +182,14 @@ pub const Renderer = struct {
         }
     }
 
-    fn renderLine(self: *Self, verticies: []const Vertex) !void {
+    fn renderLine(self: *Self, triangle: *const Triangle) !void {
         if (!sdl.SDL_SetRenderDrawColor(self.renderer, 255, 255, 255, 255)) {
             std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
             return error.SdlRenderFailed;
         }
 
-        for (verticies) |vertex1| {
-            for (verticies) |vertex2| {
+        for (triangle.vertices.items) |vertex1| {
+            for (triangle.vertices.items) |vertex2| {
                 if (!sdl.SDL_RenderLine(
                     self.renderer,
                     vertex1.position[0],
@@ -191,30 +204,44 @@ pub const Renderer = struct {
         }
     }
 
-    fn renderPoints(self: *Self, verticies: []const Vertex) !void {
+    fn renderPoints(self: *Self, triangle: *const Triangle) !void {
         var i: u32 = 0;
-        for (verticies) |vertex| {
-            if (!sdl.SDL_SetRenderDrawColor(
-                self.renderer,
-                vertex.color[0],
-                vertex.color[1],
-                vertex.color[2],
-                255,
-            )) {
-                std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
-                return error.SdlRenderFailed;
-            }
 
-            var buffer: [16]u8 = undefined;
-            const vertex_name: []const u8 = try std.mem.printSentinel(&buffer, "v{d}", .{i}, 0);
+        const centroid: Vec2 = triangle.centroid();
 
+        for (triangle.vertices.items) |vertex| {
+            try self.renderDebugText(
+                ((vertex.position[0] - centroid[0]) * 1.05) + centroid[0],
+                ((vertex.position[1] - centroid[1]) * 1.05) + centroid[1],
+                vertex.color,
+                "v{d}",
+                .{i},
+            );
             i = i + 1;
-            if (!sdl.SDL_RenderDebugText(self.renderer, vertex.position[0] - 30, vertex.position[1] - 30, vertex_name.ptr)) {
-                std.debug.print("render debug text failed: {s}\n", .{sdl.SDL_GetError()});
-                return error.SdlRenderFailed;
-            }
 
             try self.renderBigPoint(vertex.position[0], vertex.position[1], 1);
+        }
+    }
+
+    fn renderDebugText(
+        self: *Self,
+        x: f32,
+        y: f32,
+        color: Color3,
+        comptime fmt: []const u8,
+        args: anytype,
+    ) !void {
+        if (!sdl.SDL_SetRenderDrawColor(self.renderer, color[0], color[1], color[2], 255)) {
+            std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
+            return error.SdlRenderFailed;
+        }
+
+        var buf: [128]u8 = undefined;
+        const text: []const u8 = try std.mem.printSentinel(&buf, fmt, args, 0);
+
+        if (!sdl.SDL_RenderDebugText(self.renderer, x, y, text.ptr)) {
+            std.debug.print("render debug text failed: {s}\n", .{sdl.SDL_GetError()});
+            return error.SdlRenderFailed;
         }
     }
 
