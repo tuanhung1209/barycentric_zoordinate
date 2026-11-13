@@ -1,5 +1,4 @@
 const std = @import("std");
-const math = std.math;
 
 var global_prng: std.Random.DefaultPrng = undefined;
 
@@ -36,10 +35,6 @@ pub inline fn rvec2Init(xmin: f32, xmax: f32, ymin: f32, ymax: f32) Vec2 {
         getRandomInRange(f32, xmin, xmax),
         getRandomInRange(f32, ymin, ymax),
     };
-}
-
-pub inline fn vec3Init(x: f32, y: f32, z: f32) Vec3 {
-    return .{ x, y, z };
 }
 
 pub inline fn color3Init(x: u8, y: u8, z: u8) Color3 {

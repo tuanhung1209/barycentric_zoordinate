@@ -4,7 +4,6 @@ const Vec2 = @import("helper.zig").Vec2;
 const Color3 = @import("helper.zig").Color3;
 const edgeCross = @import("barycentric.zig").edgeFunction;
 
-// tempoary
 pub const Vertex = struct {
     position: Vec2 = undefined,
     color: Color3 = undefined,
@@ -16,7 +15,7 @@ pub const Triangle = struct {
     allocator: std.mem.Allocator = undefined,
 
     vertices: std.ArrayList(Vertex) = undefined,
-    // for loop only throught this triangle to render
+    // check only this point to render
     max_point_x: f32 = undefined,
     min_point_x: f32 = undefined,
     max_point_y: f32 = undefined,
@@ -44,10 +43,6 @@ pub const Triangle = struct {
             self.max_point_y = @max(self.max_point_y, self_vertex.position[1]);
             self.min_point_y = @min(self.min_point_y, self_vertex.position[1]);
         }
-    }
-
-    pub fn popVertex(self: *Self) !void {
-        _ = self.vertices.pop();
     }
 
     pub fn centroid(self: *const Self) Vec2 {

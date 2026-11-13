@@ -4,9 +4,7 @@ const sdl = @import("sdl");
 const Vec2 = @import("helper.zig").Vec2;
 const Vec3 = @import("helper.zig").Vec3;
 const Color3 = @import("helper.zig").Color3;
-const Vertex = @import("triangle.zig").Vertex;
 const Triangle = @import("triangle.zig").Triangle;
-const vec = @import("helper.zig");
 const barycentric = @import("barycentric.zig").barycentric;
 const interpolate = @import("barycentric.zig").interpolate;
 
@@ -14,7 +12,6 @@ pub const Renderer = struct {
     const Self = @This();
 
     renderer: *sdl.SDL_Renderer = undefined,
-    window: *sdl.SDL_Window = undefined,
     barycentric_tex: ?*sdl.SDL_Texture = null,
 
     width: u32 = undefined,
@@ -28,7 +25,6 @@ pub const Renderer = struct {
         self.width = width;
         self.height = height;
         self.renderer = renderer;
-        self.window = window;
         self.barycentric_tex = null;
     }
 
@@ -67,16 +63,12 @@ pub const Renderer = struct {
     fn bakeTriangleTexture(self: *Self, triangle: *const Triangle) !void {
         if (self.barycentric_tex != null) return;
 
-        var w: c_int = @intCast(self.width);
-        var h: c_int = @intCast(self.height);
-        _ = sdl.SDL_GetWindowSize(self.window, &w, &h);
-
         const tex = sdl.SDL_CreateTexture(
             self.renderer,
             sdl.SDL_PIXELFORMAT_RGBA8888,
             sdl.SDL_TEXTUREACCESS_TARGET,
-            w,
-            h,
+            @intCast(self.width),
+            @intCast(self.height),
         ) orelse {
             std.debug.print("SDL_CreateTexture failed: {s}\n", .{sdl.SDL_GetError()});
             return error.SdlCreateTextureFailed;
@@ -135,8 +127,7 @@ pub const Renderer = struct {
     fn renderLineToPoint(self: *Self, triangle: *const Triangle) !void {
         var x: f32 = 0;
         var y: f32 = 0;
-        const mouse: sdl.SDL_MouseButtonFlags = sdl.SDL_GetMouseState(&x, &y);
-        _ = mouse;
+        _ = sdl.SDL_GetMouseState(&x, &y);
 
         const is_inside = triangle.checkPoint(.{ x, y });
         const white: Color3 = @splat(255);

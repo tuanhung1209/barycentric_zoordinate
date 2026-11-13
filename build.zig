@@ -12,13 +12,6 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    const lib_mod = b.addModule("barycentric_zoordinates", .{
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-    exe_mod.addImport("barycentric_zoordinates", lib_mod);
-
     const exe = b.addExecutable(.{
         .name = "barycentric_zoordinates",
         .root_module = exe_mod,

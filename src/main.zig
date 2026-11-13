@@ -4,9 +4,6 @@ const helper = @import("helper.zig");
 
 const Renderer = @import("renderer.zig").Renderer;
 const Triangle = @import("triangle.zig").Triangle;
-const Vertex = @import("triangle.zig").Vertex;
-
-const Vec2 = helper.Vec2;
 
 const WINDOW_WIDTH: u32 = 1000;
 const WINDOW_HEIGHT: u32 = 1000;
@@ -54,11 +51,6 @@ pub fn main(init: std.process.Init) !void {
         .position = helper.rvec2Init(0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_HEIGHT),
         .color = helper.color3Init(0, 0, 255),
     });
-
-    // TODO : a debug message with the 3 weight and their caculation
-    // weight
-    // mouse position
-    // indisde or outside the triangle
 
     var renderer: Renderer = undefined;
     try renderer.init(window, WINDOW_WIDTH, WINDOW_HEIGHT);

@@ -37,7 +37,7 @@ pub inline fn interpolate(triangle: *const Triangle, weights: Vec3) Color3 {
     const p2: Color3 = triangle.vertices.items[1].color;
     const p3: Color3 = triangle.vertices.items[2].color;
 
-    // should be always equal to u8 ?
+    // should be always equal to u8
     const r: u8 = @trunc(@as(f64, @floatFromInt(p1[0])) * weights[0] + @as(f64, @floatFromInt(p2[0])) * weights[1] + @as(f64, @floatFromInt(p3[0])) * weights[2]);
     const g: u8 = @trunc(@as(f64, @floatFromInt(p1[1])) * weights[0] + @as(f64, @floatFromInt(p2[1])) * weights[1] + @as(f64, @floatFromInt(p3[1])) * weights[2]);
     const b: u8 = @trunc(@as(f64, @floatFromInt(p1[2])) * weights[0] + @as(f64, @floatFromInt(p2[2])) * weights[1] + @as(f64, @floatFromInt(p3[2])) * weights[2]);
