@@ -16,6 +16,11 @@ pub const Triangle = struct {
     allocator: std.mem.Allocator = undefined,
 
     vertices: std.ArrayList(Vertex) = undefined,
+    // for loop only throught this triangle to render
+    max_point_x: f32 = undefined,
+    min_point_x: f32 = undefined,
+    max_point_y: f32 = undefined,
+    min_point_y: f32 = undefined,
 
     pub fn init(self: *Self, allocator: std.mem.Allocator) void {
         self.allocator = allocator;
@@ -28,6 +33,13 @@ pub const Triangle = struct {
 
     pub fn appendVertex(self: *Self, vertex: Vertex) !void {
         try self.vertices.append(self.allocator, vertex);
+        // here then check for min point and max point
+        for (self.vertices.items) |self_vertex| {
+            self.max_point_x = @max(self.max_point_x, self_vertex.position[0]);
+            self.max_point_y = @max(self.max_point_y, self_vertex.position[0]);
+            self.min_point_x = @min(self.min_point_x, self_vertex.position[1]);
+            self.min_point_y = @min(self.min_point_y, self_vertex.position[1]);
+        }
     }
 
     pub fn popVertex(self: *Self) !void {

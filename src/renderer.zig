@@ -28,34 +28,40 @@ pub const Renderer = struct {
         sdl.SDL_DestroyRenderer(self.renderer);
     }
 
-    pub fn render(self: *Self, triangle: *Triangle) !void {
+    pub fn render(self: *Self, triangle: *Triangle, show_barycentric: bool) !void {
         if (!sdl.SDL_SetRenderDrawColor(self.renderer, 12, 12, 24, 255)) {
             std.debug.print("SetRenderDrawColor failed: {s}\n", .{sdl.SDL_GetError()});
             return error.SdlRenderFailed;
         }
         try self.clear();
 
+        // TODO : move this to somewhere else
+        var x: f32 = 0;
+        var y: f32 = 0;
+        const mouse: sdl.SDL_MouseButtonFlags = sdl.SDL_GetMouseState(&x, &y);
+        _ = mouse;
+
         try self.renderLine(triangle.vertices.items);
-        try self.renderCheck(triangle);
+
+        // now that show_barycentric also need the mouse cooridinate it would make sense to move mouse posx to
+        // out side or maybe even in the feild structure
+        if (triangle.checkPoint(.{ x, y })) {
+            if (show_barycentric) {
+                //try self.renderFillTriangle(triangle);
+            }
+            try self.renderCheck(triangle, x, y);
+        }
         try self.renderPoints(triangle.vertices.items);
 
         _ = sdl.SDL_RenderPresent(self.renderer);
     }
 
-    // helper function
-    fn renderCheck(self: *Self, triangle: *Triangle) !void {
-        var x: f32 = 0;
-        var y: f32 = 0;
-
-        const mouse: sdl.SDL_MouseButtonFlags = sdl.SDL_GetMouseState(&x, &y);
-        _ = mouse;
-
-        if (triangle.checkPoint(.{ x, y })) {
-            std.debug.print("inside the triangle\n", .{});
-            const weights: Vec3 = barycentric(triangle, .{ x, y });
-            std.debug.print("w1 : {d:.2}, w2 : {d:.2}, w3 : {d:.2}\n", .{ weights[0], weights[1], weights[2] });
-            try self.renderToPoint(triangle, x, y);
-        }
+    fn renderCheck(self: *Self, triangle: *Triangle, mouse_posx: f32, mouse_posy: f32) !void {
+        // helper function
+        std.debug.print("inside the triangle\n", .{});
+        const weights: Vec3 = barycentric(triangle, .{ mouse_posx, mouse_posy });
+        std.debug.print("w1 :{d:.2}, w2 :{d:.2}, w3 :{d:.2}\n", .{ weights[0], weights[1], weights[2] });
+        try self.renderToPoint(triangle, mouse_posx, mouse_posy);
     }
 
     fn renderToPoint(self: *Self, triangle: *Triangle, mouse_posx: f32, mouse_posy: f32) !void {

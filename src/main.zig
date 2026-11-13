@@ -59,13 +59,22 @@ pub fn main(init: std.process.Init) !void {
     var renderer: Renderer = undefined;
     try renderer.init(window);
 
+    var showBarycentric: bool = false;
+
     var quit = false;
     while (!quit) {
         var event: sdl.SDL_Event = undefined;
         while (sdl.SDL_PollEvent(&event)) {
-            if (event.type == sdl.SDL_EVENT_QUIT) quit = true;
+            if (event.type == sdl.SDL_EVENT_QUIT) {
+                quit = true;
+            } else if (event.type == sdl.SDL_EVENT_KEY_DOWN) {
+                if (event.key.key == sdl.SDLK_E) {
+                    showBarycentric = !showBarycentric;
+                }
+            }
         }
-        try renderer.render(&triangle);
+
+        try renderer.render(&triangle, showBarycentric);
     }
 
     std.debug.print("clean exit\n", .{});
