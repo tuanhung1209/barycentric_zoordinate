@@ -1,8 +1,8 @@
 const std = @import("std");
 
-const Vec2 = @import("math.zig").Vec2;
-const Vec3 = @import("math.zig").Vec3;
-const Color3 = @import("math.zig").Color3;
+const Vec2 = @import("helper.zig").Vec2;
+const Vec3 = @import("helper.zig").Vec3;
+const Color3 = @import("helper.zig").Color3;
 
 const Triangle = @import("triangle.zig").Triangle;
 
@@ -25,9 +25,8 @@ pub inline fn barycentric(triangle: *const Triangle, point: Vec2) Vec3 {
 
     const area: f64 = edgeFunction(p1, p2, p3);
 
-    const w1: f64 = edgeFunction(p1, p2, point) / area;
-    const w2: f64 = edgeFunction(p2, p3, point) / area;
-    //const w3: f64 = edgeFunction(p1, p3, point);
+    const w1: f64 = edgeFunction(p2, p3, point) / area;
+    const w2: f64 = edgeFunction(p3, p1, point) / area;
     const w3: f64 = 1 - w1 - w2;
 
     return .{ w1, w2, w3 };

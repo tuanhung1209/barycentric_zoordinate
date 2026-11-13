@@ -1,7 +1,7 @@
 const std = @import("std");
 
-const Vec2 = @import("math.zig").Vec2;
-const Color3 = @import("math.zig").Color3;
+const Vec2 = @import("helper.zig").Vec2;
+const Color3 = @import("helper.zig").Color3;
 const edgeCross = @import("barycentric.zig").edgeFunction;
 
 // tempoary
@@ -25,6 +25,10 @@ pub const Triangle = struct {
     pub fn init(self: *Self, allocator: std.mem.Allocator) void {
         self.allocator = allocator;
         self.vertices = .empty;
+        self.max_point_x = 0;
+        self.min_point_x = std.math.floatMax(f32);
+        self.max_point_y = 0;
+        self.min_point_y = std.math.floatMax(f32);
     }
 
     pub fn deinit(self: *Self) void {
