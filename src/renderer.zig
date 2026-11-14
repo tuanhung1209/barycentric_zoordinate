@@ -24,7 +24,17 @@ pub const Renderer = struct {
         };
         self.width = width;
         self.height = height;
+        //sdl.SDL_RendererLogicalPresentation
         self.renderer = renderer;
+        if (!sdl.SDL_SetRenderLogicalPresentation(
+            self.renderer,
+            @intCast(self.width),
+            @intCast(self.height),
+            sdl.SDL_LOGICAL_PRESENTATION_STRETCH,
+        )) {
+            std.debug.print("SDL_SetRenderLogicalPresentation failed: {s}\n", .{sdl.SDL_GetError()});
+            return error.SdlRenderFailed;
+        }
         self.barycentric_tex = null;
     }
 
@@ -128,6 +138,13 @@ pub const Renderer = struct {
         var x: f32 = 0;
         var y: f32 = 0;
         _ = sdl.SDL_GetMouseState(&x, &y);
+        _ = sdl.SDL_RenderCoordinatesFromWindow(
+            self.renderer,
+            x,
+            y,
+            &x,
+            &y,
+        );
 
         const is_inside = triangle.checkPoint(.{ x, y });
         const white: Color3 = @splat(255);
@@ -202,8 +219,8 @@ pub const Renderer = struct {
 
         for (triangle.vertices.items) |vertex| {
             try self.renderDebugText(
-                ((vertex.position[0] - centroid[0]) * 1.05) + centroid[0],
-                ((vertex.position[1] - centroid[1]) * 1.05) + centroid[1],
+                ((vertex.position[0] - centroid[0]) * 1.06) + centroid[0],
+                ((vertex.position[1] - centroid[1]) * 1.06) + centroid[1],
                 vertex.color,
                 "v{d}",
                 .{i},

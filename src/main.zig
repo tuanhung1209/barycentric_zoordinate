@@ -5,8 +5,8 @@ const helper = @import("helper.zig");
 const Renderer = @import("renderer.zig").Renderer;
 const Triangle = @import("triangle.zig").Triangle;
 
-const WINDOW_WIDTH: u32 = 1000;
-const WINDOW_HEIGHT: u32 = 1000;
+const WINDOW_WIDTH: u32 = 600;
+const WINDOW_HEIGHT: u32 = 600;
 
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
@@ -24,7 +24,7 @@ pub fn main(init: std.process.Init) !void {
         "barycentric zoordinates",
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        0,
+        sdl.SDL_WINDOW_RESIZABLE,
     ) orelse {
         std.debug.print("SDL_CreateWindow failed: {s}\n", .{sdl.SDL_GetError()});
         return error.SdlCreateWindowFailed;
